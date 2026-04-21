@@ -7,6 +7,7 @@ import uuid
 import time
 
 from app.ingestion.processor import DocumentProcessor
+from app.retrieval.hybrid import HybridRetriever
 
 app = FastAPI(
     title="Enterprise Document Intelligence API",
@@ -24,6 +25,7 @@ app.add_middleware(
 
 # Initialize components
 processor = DocumentProcessor()
+retriever = HybridRetriever()
 
 class QueryRequest(BaseModel):
     query: str
@@ -51,7 +53,7 @@ async def health():
         "features": ["OCR", "Hybrid Retrieval", "Reranking", "Citations"],
         "components": {
             "ingestion": processor.is_ready(),
-            "retrieval": "ready",
+            "retrieval": retriever.is_ready(),
             "generation": "ready"
         }
     }
@@ -78,6 +80,9 @@ async def upload_document(file: UploadFile = File(...)):
         
         os.remove(temp_path)
         
+        # Rebuild BM25 index after new document
+        retriever.build_bm25_index()
+        
         return {
             "document_id": doc_id,
             "filename": file.filename,
@@ -96,15 +101,42 @@ async def query(request: QueryRequest):
     start_total = time.time()
     
     try:
-        # TODO: Implement retrieval (Day 3)
-        # TODO: Implement generation (Day 4)
+        # Ensure retriever is initialized
+        if not retriever.all_documents:
+            retriever.build_bm25_index()
+        
+        # Retrieve
+        start_retrieval = time.time()
+        results = retriever.hybrid_search(request.query, top_k=request.top_k)
+        retrieval_time = (time.time() - start_retrieval) * 1000
+        
+        # Format citations
+        citations = []
+        context_parts = []
+        for i, result in enumerate(results):
+            citations.append(Citation(
+                source=result["metadata"].get("source", "Unknown"),
+                page=result["metadata"].get("page", 1),
+                text=result["text"][:200] + "...",
+                score=round(result["rrf_score"], 4)
+            ))
+            context_parts.append(f"[{i+1}] {result['text']}")
+        
+        # Generate answer (placeholder for Day 4)
+        start_generation = time.time()
+        
+        context = "\n\n".join(context_parts)
+        answer = f"Based on the retrieved documents, here are the relevant findings:\n\n{context[:1000]}..."
+        
+        generation_time = (time.time() - start_generation) * 1000
+        total_time = (time.time() - start_total) * 1000
         
         return QueryResponse(
-            answer="Placeholder answer - full pipeline coming in Days 3-4",
-            citations=[],
-            retrieval_time_ms=0,
-            generation_time_ms=0,
-            total_time_ms=round((time.time() - start_total) * 1000, 2)
+            answer=answer,
+            citations=citations,
+            retrieval_time_ms=round(retrieval_time, 2),
+            generation_time_ms=round(generation_time, 2),
+            total_time_ms=round(total_time, 2)
         )
         
     except Exception as e:
