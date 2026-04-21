@@ -6,6 +6,8 @@ import os
 import uuid
 import time
 
+from app.ingestion.processor import DocumentProcessor
+
 app = FastAPI(
     title="Enterprise Document Intelligence API",
     description="Production RAG with hybrid retrieval, reranking, citations, and OCR",
@@ -19,6 +21,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Initialize components
+processor = DocumentProcessor()
 
 class QueryRequest(BaseModel):
     query: str
@@ -45,7 +50,7 @@ async def health():
         "version": "1.0.0",
         "features": ["OCR", "Hybrid Retrieval", "Reranking", "Citations"],
         "components": {
-            "ingestion": "ready",
+            "ingestion": processor.is_ready(),
             "retrieval": "ready",
             "generation": "ready"
         }
@@ -68,16 +73,18 @@ async def upload_document(file: UploadFile = File(...)):
             content = await file.read()
             f.write(content)
         
-        # TODO: Process with OCR if needed (Day 2)
+        # Process and index
+        result = await processor.process(temp_path, doc_id, file.filename)
         
         os.remove(temp_path)
         
         return {
             "document_id": doc_id,
             "filename": file.filename,
-            "chunks_indexed": 0,
-            "ocr_used": False,
-            "status": "placeholder"
+            "chunks_indexed": result["chunks"],
+            "ocr_used": result["ocr_used"],
+            "char_count": result["char_count"],
+            "status": "indexed"
         }
         
     except Exception as e:
@@ -93,7 +100,7 @@ async def query(request: QueryRequest):
         # TODO: Implement generation (Day 4)
         
         return QueryResponse(
-            answer="Placeholder answer - full pipeline coming in Days 2-4",
+            answer="Placeholder answer - full pipeline coming in Days 3-4",
             citations=[],
             retrieval_time_ms=0,
             generation_time_ms=0,
@@ -106,7 +113,7 @@ async def query(request: QueryRequest):
 @app.get("/documents")
 async def list_documents():
     """List all indexed documents"""
-    return {"documents": []}
+    return await processor.list_documents()
 
 if __name__ == "__main__":
     import uvicorn
