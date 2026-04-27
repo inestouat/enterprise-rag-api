@@ -8,6 +8,7 @@ import time
 
 from app.ingestion.processor import DocumentProcessor
 from app.retrieval.hybrid import HybridRetriever
+from app.generation.engine import GenerationEngine
 
 app = FastAPI(
     title="Enterprise Document Intelligence API",
@@ -26,6 +27,7 @@ app.add_middleware(
 # Initialize components
 processor = DocumentProcessor()
 retriever = HybridRetriever()
+generator = GenerationEngine()
 
 class QueryRequest(BaseModel):
     query: str
@@ -54,7 +56,7 @@ async def health():
         "components": {
             "ingestion": processor.is_ready(),
             "retrieval": retriever.is_ready(),
-            "generation": "ready"
+            "generation": generator.is_ready()
         }
     }
 
@@ -118,15 +120,15 @@ async def query(request: QueryRequest):
                 source=result["metadata"].get("source", "Unknown"),
                 page=result["metadata"].get("page", 1),
                 text=result["text"][:200] + "...",
-                score=round(result["rrf_score"], 4)
+                score=round(result.get("rerank_score", result["rrf_score"]), 4)
             ))
             context_parts.append(f"[{i+1}] {result['text']}")
         
-        # Generate answer (placeholder for Day 4)
+        # Generate answer with LLM
         start_generation = time.time()
         
         context = "\n\n".join(context_parts)
-        answer = f"Based on the retrieved documents, here are the relevant findings:\n\n{context[:1000]}..."
+        answer = generator.generate(request.query, context, citations)
         
         generation_time = (time.time() - start_generation) * 1000
         total_time = (time.time() - start_total) * 1000

@@ -1,11 +1,13 @@
 from typing import List, Dict
 from app.retrieval.bm25_index import BM25Index
 from app.retrieval.vector_store import VectorStore
+from app.retrieval.reranker import Reranker
 
 class HybridRetriever:
     def __init__(self):
         self.bm25 = BM25Index()
         self.vector = VectorStore()
+        self.reranker = Reranker()
         self.all_documents = []
     
     def is_ready(self) -> bool:
@@ -13,7 +15,6 @@ class HybridRetriever:
     
     def build_bm25_index(self):
         """Load all documents from ChromaDB and build BM25 index"""
-        # Get all documents from ChromaDB
         results = self.vector.collection.get(
             include=["documents", "metadatas"]
         )
@@ -31,17 +32,17 @@ class HybridRetriever:
         print(f"🔧 Hybrid retriever ready: {len(documents)} documents indexed")
     
     def hybrid_search(self, query: str, top_k: int = 10) -> List[Dict]:
-        """Combine BM25 + Vector search with RRF fusion"""
+        """Combine BM25 + Vector search with RRF fusion + Cross-encoder reranking"""
+        
         # BM25 search
         bm25_results = self.bm25.search(query, top_k=top_k * 2)
         
         # Vector search
         vector_results = self.vector.search(query, top_k=top_k * 2)
         
-        # RRF Fusion (Reciprocal Rank Fusion)
+        # RRF Fusion
         scores = {}
         
-        # Score BM25 results
         for rank, (idx, bm25_score) in enumerate(bm25_results):
             doc_id = self.bm25.documents[idx]["id"]
             if doc_id not in scores:
@@ -49,7 +50,6 @@ class HybridRetriever:
             else:
                 scores[doc_id]["bm25_rank"] = rank + 1
         
-        # Score Vector results
         for rank, vec_doc in enumerate(vector_results):
             doc_id = vec_doc["id"]
             if doc_id not in scores:
@@ -58,14 +58,13 @@ class HybridRetriever:
                 scores[doc_id]["vector_rank"] = rank + 1
         
         # Calculate RRF scores
-        k = 60  # RRF constant
+        k = 60
         final_scores = []
         
         for doc_id, data in scores.items():
             bm25_rank = data["bm25_rank"] or 999
             vector_rank = data["vector_rank"] or 999
             
-            # RRF formula: 1/(k + rank)
             rrf_score = 1/(k + bm25_rank) + 1/(k + vector_rank)
             
             doc = data["doc"]
@@ -78,7 +77,9 @@ class HybridRetriever:
                 "vector_rank": vector_rank if vector_rank != 999 else None
             })
         
-        # Sort by RRF score descending
         final_scores.sort(key=lambda x: x["rrf_score"], reverse=True)
         
-        return final_scores[:top_k]
+        # Rerank with cross-encoder for precision
+        reranked = self.reranker.rerank(query, final_scores, top_k=top_k)
+        
+        return reranked
