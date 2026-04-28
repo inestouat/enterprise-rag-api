@@ -1,0 +1,6 @@
+@echo off
+echo Starting DocIQ...
+start "FastAPI" cmd /k "cd /d C:\Users\inest\Desktop\enterprise-rag-api && venv\Scripts\activate && python -m app.main"
+timeout /t 5
+start "Streamlit" cmd /k "cd /d C:\Users\inest\Desktop\enterprise-rag-api && venv\Scripts\activate && streamlit run app/ui/streamlit_app.py"
+echo Both servers starting...
