@@ -1,0 +1,142 @@
+[
+  {
+  "id": "q001",
+  "question": "What is the Enterprise AI Adoption Report about and how many enterprises were surveyed?",
+  "golden_answer": "The document is an Enterprise AI Adoption Report for 2024, analyzing the state of artificial intelligence adoption across 500 large enterprises surveyed between January and September 2024.",
+  "relevant_chunks_hint": "executive summary, title",
+  "category": "factual"
+  },
+  {
+    "id": "q002",
+    "question": "What percentage of organizations have deployed at least one AI solution in production?",
+    "golden_answer": "73% of organizations have deployed at least one AI solution in production in 2024, up from 51% in 2023.",
+    "relevant_chunks_hint": "executive summary",
+    "category": "factual"
+  },
+  {
+    "id": "q003",
+    "question": "What percentage of organizations achieved measurable ROI from AI within the first year?",
+    "golden_answer": "Only 31% of organizations report achieving measurable ROI from their AI investments within the first year of deployment.",
+    "relevant_chunks_hint": "executive summary",
+    "category": "factual"
+  },
+  {
+    "id": "q004",
+    "question": "What is the total enterprise AI spending in 2024 and how does it compare to 2023?",
+    "golden_answer": "Total enterprise AI spending reached $47.3 billion in 2024, representing a 34% increase over 2023.",
+    "relevant_chunks_hint": "investment trends section",
+    "category": "factual"
+  },
+  {
+    "id": "q005",
+    "question": "What are the top three barriers to AI adoption mentioned in the report?",
+    "golden_answer": "The top three barriers are: data quality issues (cited by 68% of respondents), lack of skilled personnel (54%), and difficulty integrating AI tools with legacy infrastructure (49%).",
+    "relevant_chunks_hint": "executive summary, challenges section",
+    "category": "factual"
+  },
+  {
+    "id": "q006",
+    "question": "Which industry sector has the highest AI maturity score?",
+    "golden_answer": "Financial services has the highest AI maturity score at 82 out of 100, followed by technology at 79 out of 100 and healthcare at 71 out of 100.",
+    "relevant_chunks_hint": "executive summary",
+    "category": "factual"
+  },
+  {
+    "id": "q007",
+    "question": "What is the average ROI for organizations that report positive returns from AI investment?",
+    "golden_answer": "Among organizations reporting positive AI ROI, the average return was 3.7 times the initial investment over a three-year period.",
+    "relevant_chunks_hint": "ROI and business impact section",
+    "category": "factual"
+  },
+  {
+    "id": "q008",
+    "question": "What does the report recommend organizations do before deploying AI systems?",
+    "golden_answer": "The report recommends establishing data governance before AI deployment, specifically investing 3 to 6 months in data auditing, cleaning, and governance framework establishment. This correlates with 2.4 times higher ROI probability.",
+    "relevant_chunks_hint": "strategic recommendations section",
+    "category": "factual"
+  },
+  {
+    "id": "q009",
+    "question": "What are the three phases recommended for AI deployment?",
+    "golden_answer": "The report recommends three deployment phases: pilot with 50 to 200 users, limited rollout covering 20% of target users, and full deployment. Typical durations are 6 to 8 weeks for pilot and 8 to 12 weeks for limited rollout.",
+    "relevant_chunks_hint": "recommendation 4 section",
+    "category": "factual"
+  },
+  {
+    "id": "q010",
+    "question": "How much did average AI engineer salaries reach in 2024 and what was the year over year change?",
+    "golden_answer": "Average AI engineer salaries reached $187,000 annually in the United States in 2024, a 12% increase over 2023.",
+    "relevant_chunks_hint": "challenges and barriers section",
+    "category": "factual"
+  },
+  {
+    "id": "q011",
+    "question": "What AI architecture does the report predict will dominate enterprise knowledge management by end of 2025?",
+    "golden_answer": "Retrieval-Augmented Generation (RAG) systems are expected to become the dominant architecture for enterprise knowledge management, replacing traditional keyword search in 40% of enterprises by end of 2025.",
+    "relevant_chunks_hint": "industry outlook 2025 section",
+    "category": "factual"
+  },
+  {
+    "id": "q012",
+    "question": "What three characteristics do the 31% of organizations achieving positive ROI share?",
+    "golden_answer": "The three shared characteristics are: executive sponsorship at the C-suite level, dedicated AI teams with cross-functional authority, and a culture of measurement and iteration.",
+    "relevant_chunks_hint": "conclusion section",
+    "category": "multi-hop"
+  },
+  {
+    "id": "q013",
+    "question": "What is the relationship between data governance investment and AI ROI, and what use cases does the report recommend starting with?",
+    "golden_answer": "Organizations that invested in data governance before deploying AI were 2.4 times more likely to report positive ROI. The report recommends starting with customer service chatbots, document processing automation, and internal knowledge management systems as initial use cases due to their lower risk and faster 6 to 12 month payback periods.",
+    "relevant_chunks_hint": "executive summary and recommendations sections",
+    "category": "multi-hop"
+  },
+  {
+    "id": "q014",
+    "question": "How does the success rate of small AI pilots compare to large-scale deployments, and what does this imply about implementation strategy?",
+    "golden_answer": "Small AI pilots under $500,000 had a 67% success rate, while large-scale deployments over $5 million had only a 38% success rate on the first attempt. This highlights the importance of phased implementation strategies rather than large upfront deployments.",
+    "relevant_chunks_hint": "investment trends section",
+    "category": "multi-hop"
+  },
+  {
+    "id": "q015",
+    "question": "What percentage of enterprises are expected to replace traditional keyword search with RAG systems and what should organizations invest in to gain competitive advantage?",
+    "golden_answer": "40% of enterprises are expected to replace traditional keyword search with RAG systems by end of 2025. Organizations should invest in vector database infrastructure and hybrid search capabilities in 2024 to 2025 to gain significant competitive advantage.",
+    "relevant_chunks_hint": "industry outlook section",
+    "category": "multi-hop"
+  },
+  {
+    "id": "q016",
+    "question": "What is the population of Mars?",
+    "golden_answer": "NOT_IN_DOCUMENT",
+    "relevant_chunks_hint": "none",
+    "category": "unanswerable"
+  },
+  {
+    "id": "q017",
+    "question": "What is the stock price of OpenAI?",
+    "golden_answer": "NOT_IN_DOCUMENT",
+    "relevant_chunks_hint": "none",
+    "category": "unanswerable"
+  },
+  {
+    "id": "q018",
+    "question": "Who is the CEO of TechInsight Research Division?",
+    "golden_answer": "NOT_IN_DOCUMENT",
+    "relevant_chunks_hint": "none",
+    "category": "unanswerable"
+  },
+  {
+    "id": "q019",
+    "question": "What programming language do most enterprise AI teams use?",
+    "golden_answer": "Python is the dominant language for AI development, used by 89% of enterprise AI teams.",
+    "relevant_chunks_hint": "technology stack section",
+    "category": "factual"
+  },
+  {
+    "id": "q020",
+    "question": "What percentage of enterprises are using large language models in production and how has this changed since 2022?",
+    "golden_answer": "61% of enterprises are running at least one LLM-powered application in 2024, compared to only 18% in 2022, representing dramatic adoption growth.",
+    "relevant_chunks_hint": "technology stack section",
+    "category": "factual"
+  }
+]

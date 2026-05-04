@@ -7,8 +7,8 @@ class Settings(BaseSettings):
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
     RERANKER_MODEL: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
     TESSERACT_CMD: str = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-    CHUNK_SIZE: int = 1000
-    CHUNK_OVERLAP: int = 200
+    CHUNK_SIZE: int = 800
+    CHUNK_OVERLAP: int = 150
     TOP_K_RETRIEVE: int = 10
     TOP_K_RERANK: int = 5
     

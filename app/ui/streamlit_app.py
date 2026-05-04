@@ -180,7 +180,6 @@ html, body, [class*="css"] { font-family: 'Syne', sans-serif; }
 }
 .badge-green { background: rgba(110,231,183,0.15); color: #6ee7b7; }
 .badge-yellow { background: rgba(251,191,36,0.15); color: #fbbf24; }
-.badge-red { background: rgba(239,68,68,0.15); color: #ef4444; }
 
 .doc-item {
     background: #0f0f18;
@@ -217,16 +216,10 @@ if "query_history" not in st.session_state:
     st.session_state.query_history = []
 
 # ─── Helpers ───────────────────────────────────────────────────────────────────
-@st.cache_data(ttl=10)
 def check_api():
-    """Cache health check for 10s — prevents blocking query execution."""
     try:
         r = requests.get(f"{API_URL}/health", timeout=3)
         return r.status_code == 200, r.json() if r.status_code == 200 else {}
-    except requests.exceptions.ConnectionError:
-        return False, {}
-    except requests.exceptions.Timeout:
-        return False, {}
     except Exception:
         return False, {}
 
@@ -244,7 +237,7 @@ with st.sidebar:
     st.markdown('<div class="dociq-logo">Doc<span>IQ</span></div>', unsafe_allow_html=True)
     st.markdown('<div class="dociq-tagline">Enterprise RAG System</div>', unsafe_allow_html=True)
 
-    # API status badge
+    # ── API status — only show when online, silent when not ──
     api_ok, health = check_api()
     if api_ok:
         generation = health.get("components", {}).get("generation", False)
@@ -259,20 +252,14 @@ with st.sidebar:
             unsafe_allow_html=True
         )
     else:
-        st.markdown(
-            '<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.68rem;'
-            'color:#ef4444;margin-bottom:1.5rem;">'
-            'API <span class="badge badge-red">offline</span> &nbsp;'
-            '<span style="color:#4a4a6a;font-size:0.6rem;">run: python -m app.main</span>'
-            '</div>',
-            unsafe_allow_html=True
-        )
+        # Show nothing when offline — no red message, no instructions
+        st.markdown('<div style="margin-bottom:1.5rem;"></div>', unsafe_allow_html=True)
 
-    # Upload section
+    # ── Upload ──
     st.markdown('<div class="section-label">Upload Document</div>', unsafe_allow_html=True)
     uploaded_file = st.file_uploader(
         "label",
-        type=["pdf", "txt", "docx", "png", "jpg", "jpeg"],
+        type=["pdf", "txt", "docx"],
         label_visibility="collapsed"
     )
 
@@ -294,8 +281,6 @@ with st.sidebar:
                     if r.status_code == 200:
                         result = r.json()
                         st.success(f"✓ {result['chunks_indexed']} chunks indexed")
-                        if result.get("ocr_used"):
-                            st.info("🔍 OCR applied to scanned content")
                         refresh_docs()
                     else:
                         st.error(f"Upload failed: {r.text[:120]}")
@@ -304,16 +289,15 @@ with st.sidebar:
 
     st.markdown("<hr>", unsafe_allow_html=True)
 
-    # Document list
+    # ── Document list ──
     st.markdown('<div class="section-label">Indexed Documents</div>', unsafe_allow_html=True)
     refresh_docs()
 
     if st.session_state.documents:
         for doc in st.session_state.documents:
-            ocr_tag = ' <span class="badge badge-yellow">OCR</span>' if doc.get("ocr_used") else ""
             st.markdown(
                 f'<div class="doc-item">'
-                f'<div class="doc-name">{doc.get("filename", "unknown")}{ocr_tag}</div>'
+                f'<div class="doc-name">{doc.get("filename", "unknown")}</div>'
                 f'<div class="doc-chunks">'
                 f'{doc.get("chunks", 0)} chunks · {doc.get("char_count", 0):,} chars'
                 f'</div></div>',
@@ -326,7 +310,7 @@ with st.sidebar:
             unsafe_allow_html=True
         )
 
-    # Query history
+    # ── Query history ──
     if st.session_state.query_history:
         st.markdown("<hr>", unsafe_allow_html=True)
         st.markdown('<div class="section-label">Recent Queries</div>', unsafe_allow_html=True)
@@ -360,8 +344,6 @@ with col_right:
     run_query = st.button("⬡ Search & Answer", type="primary", use_container_width=True)
 
 # ─── Query execution ───────────────────────────────────────────────────────────
-# KEY FIX: No longer blocked by api_ok. The health check is cached and
-# can show "offline" while the server is busy — we always try the request.
 if run_query:
     if not query.strip():
         st.warning("Enter a question above.")
@@ -380,12 +362,9 @@ if run_query:
                 else:
                     st.error(f"Query failed ({r.status_code}): {r.text[:200]}")
             except requests.exceptions.ConnectionError:
-                st.error(
-                    "Cannot reach the API. Make sure the FastAPI server is running:\n\n"
-                    "`python -m app.main`"
-                )
+                st.error("Cannot reach the API. Make sure 'python -m app.main' is running.")
             except requests.exceptions.Timeout:
-                st.error("Query timed out (>120s). The LLM may be slow — try again.")
+                st.error("Query timed out. The LLM may be slow — try again.")
             except Exception as e:
                 st.error(f"Unexpected error: {str(e)[:150]}")
 
@@ -402,7 +381,6 @@ if st.session_state.last_result:
         unsafe_allow_html=True
     )
 
-    # Metrics row
     r_ms = result.get("retrieval_time_ms", 0)
     g_ms = result.get("generation_time_ms", 0)
     t_ms = result.get("total_time_ms", 0)
@@ -425,7 +403,6 @@ if st.session_state.last_result:
         unsafe_allow_html=True
     )
 
-    # Citations
     if result.get("citations"):
         st.markdown('<div class="citation-header">⬡ Sources</div>', unsafe_allow_html=True)
         for i, c in enumerate(result["citations"], 1):

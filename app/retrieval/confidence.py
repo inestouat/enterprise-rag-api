@@ -1,8 +1,8 @@
 from typing import List, Dict, Tuple
 
 # Thresholds — tune these based on your eval results later
-HIGH_CONFIDENCE = 0.6
-LOW_CONFIDENCE = 0.35
+HIGH_CONFIDENCE = 0.75
+LOW_CONFIDENCE = 0.20
 
 def compute_confidence(results: List[Dict]) -> Dict:
     """

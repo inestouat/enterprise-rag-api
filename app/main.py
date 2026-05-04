@@ -158,7 +158,7 @@ async def query(request: QueryRequest):
                 text=result["text"][:200] + "...",
                 score=round(result.get("rerank_score", result.get("rrf_score", 0)), 4)
             ))
-            context_parts.append(f"[{i+1}] {result['text'][:500]}")
+            context_parts.append(f"[{i+1}] {result['text'][:800]}")
 
         # Generate — or return IDK response if confidence too low
         start_generation = time.time()
@@ -184,14 +184,21 @@ async def query(request: QueryRequest):
 
     except Exception as e:
         import traceback
-        print(f"\n❌ QUERY ERROR: {e}")
+        print(f"\n QUERY ERROR: {e}")
         traceback.print_exc()
         raise HTTPException(500, f"Query failed: {str(e)}")
 
-
 @app.get("/documents")
 async def list_documents():
-    return await processor.list_documents()
+    try:
+        docs = processor.list_documents()
+        # Handle both sync and async versions
+        if hasattr(docs, '__await__'):
+            docs = await docs
+        return docs if isinstance(docs, list) else []
+    except Exception as e:
+        print(f" /documents error: {e}")
+        return []
 
 
 if __name__ == "__main__":
