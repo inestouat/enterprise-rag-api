@@ -1,4 +1,4 @@
-# DocIQ — Enterprise RAG System
+# DocIQ Enterprise RAG System
 
 Retrieval-Augmented Generation (RAG) system featuring hybrid search, cross-encoder reranking, confidence scoring, and grounded citations. Designed to run fully locally.
 
@@ -30,7 +30,7 @@ All responses are generated using a local LLM and are fully grounded in retrieve
 - **Citation grounding**: Source + page number  
 - **Evaluation**: 20-question dataset + LLM-as-judge  
 - **REST API**: FastAPI (OpenAPI docs)  
-- **Frontend**: Streamlit (dark UI)  
+- **Frontend**: Streamlit  
 
 
 
