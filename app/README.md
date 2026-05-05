@@ -14,31 +14,6 @@ Retrieved results are improved using a neural cross-encoder reranker, ensuring o
 All responses are generated using a local LLM and are fully grounded in retrieved documents. Every answer includes traceable citations, ensuring transparency and verifiability.
 
 
-## Architecture
-┌─────────────────────────────────────────────────────────┐
-│                    DOCIQ PIPELINE                       │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  INGESTION                                              │
-│  Upload → Parse (PDF/DOCX/TXT) → Chunk (800 chars,      │
-│  150 overlap) → Embed → ChromaDB + BM25                 │
-│                                                         │
-│  RETRIEVAL (Hybrid)                                     │
-│  Query → BM25 keyword ──┐                               │
-│       → Vector semantic ┴──→ RRF Fusion → Top-K         │
-│                                                         │
-│  RERANKING                                              │
-│  Top-K → Cross-Encoder → Reordered by true relevance    │
-│                                                         │
-│  CONFIDENCE SCORING                                     │
-│  Reranked results → Composite score                     │
-│                                                         │
-│  GENERATION                                             │
-│  If confident → Qwen2.5 (Ollama) → Cited answer         │
-│  If not confident → Structured IDK response             │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-
 
 
 ## Features
@@ -56,40 +31,6 @@ All responses are generated using a local LLM and are fully grounded in retrieve
 - **Evaluation**: 20-question dataset + LLM-as-judge  
 - **REST API**: FastAPI (OpenAPI docs)  
 - **Frontend**: Streamlit (dark UI)  
-
-
-## Project Structure
-
-enterprise-rag-api/
-├── app/
-│   ├── core/
-│   │   └── config.py              # Settings from .env
-│   ├── ingestion/
-│   │   ├── parser.py              # PDF / DOCX / TXT parsers
-│   │   ├── chunker.py             # Recursive text splitting
-│   │   └── processor.py          # Full ingestion pipeline
-│   ├── retrieval/
-│   │   ├── bm25_index.py          # BM25 keyword index
-│   │   ├── vector_store.py        # ChromaDB semantic search
-│   │   ├── hybrid.py              # RRF fusion + reranking
-│   │   ├── reranker.py            # Cross-encoder reranker
-│   │   └── confidence.py         # Confidence scoring + IDK logic
-│   ├── generation/
-│   │   └── engine.py              # Ollama / Qwen2.5 generation
-│   ├── ui/
-│   │   └── streamlit_app.py       # Frontend UI
-│   └── main.py                    # FastAPI application
-├── tests/
-│   └── eval/
-│       ├── evaluator.py           # Evaluation suite
-│       ├── golden_dataset.json    # 20-question ground truth
-│       └── reports/               # Saved eval reports
-├── test_documents/                # Sample documents
-├── data/                          # ChromaDB storage (gitignored)
-├── .env.example
-├── requirements.txt
-└── README.md
-
 
 
 
